@@ -5,7 +5,6 @@ MAINTAINER ngineered <support@ngineered.co.uk>
 ENV php_conf /usr/local/etc/php-fpm.conf
 ENV fpm_conf /usr/local/etc/php-fpm.d/www.conf
 ENV php_vars /usr/local/etc/php/conf.d/docker-vars.ini
-ENV composer_hash 55d6ead61b29c7bdee5cccfb50076874187bd9f21f65d8991d46ec5cc90518f447387fb9f76ebae1fbbacf329e583e30
 
 ENV NGINX_VERSION 1.11.10
 
@@ -172,10 +171,7 @@ RUN echo @testing http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repo
     mkdir -p /var/www/app && \
     mkdir -p /run/nginx && \
     mkdir -p /var/log/supervisor && \
-    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
-    php -r "if (hash_file('SHA384', 'composer-setup.php') === '${composer_hash}') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" && \
-    php composer-setup.php --install-dir=/usr/bin --filename=composer && \
-    php -r "unlink('composer-setup.php');"  && \
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
     pip install -U pip && \
     pip install -U certbot && \
     mkdir -p /etc/letsencrypt/webrootauth && \
@@ -235,7 +231,7 @@ RUN chmod 755 /usr/bin/pull && chmod 755 /usr/bin/push && chmod 755 /usr/bin/let
 ADD src/ /var/www/html/
 ADD errors/ /var/www/errors
 
-VOLUME /var/www/html
+WORKDIR /var/www/html/
 
 EXPOSE 443 80
 
